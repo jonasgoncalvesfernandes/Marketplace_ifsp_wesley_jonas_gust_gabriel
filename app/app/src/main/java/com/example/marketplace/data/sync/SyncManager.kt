@@ -106,11 +106,11 @@ class SyncManager(
                         colecao.document(item.id).set(dados).await()
                     }
                     OperacaoPendente.UPDATE -> {
-                        // caso específico: vincularNegociante salva só {motoristaUid, negocianteId}
+                        // caso específico: vincularNegociante/desvincularNegociante salvam {motoristaUid, negocianteId}
                         @Suppress("UNCHECKED_CAST")
-                        val payload = gson.fromJson(item.payloadJson, Map::class.java) as Map<String, String>
-                        val motoristaUid = payload["motoristaUid"] ?: item.id
-                        val negocianteId = payload["negocianteId"] ?: ""
+                        val payload = gson.fromJson(item.payloadJson, Map::class.java) as Map<String, Any?>
+                        val motoristaUid = payload["motoristaUid"] as? String ?: item.id
+                        val negocianteId = payload["negocianteId"] as? String
                         colecao.document(motoristaUid).update("negocianteId", negocianteId).await()
                     }
                     OperacaoPendente.DELETE -> {
