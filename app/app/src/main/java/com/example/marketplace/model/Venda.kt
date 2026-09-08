@@ -11,6 +11,7 @@ data class Venda(
     val compradorId: String = "",
     val vendedorId: String = "",
     val motoristaId: String = "",
+    val veiculoId: String? = null,
     val produtoId: String = "",
     val quantidade: Int = 0,
     val valorUnitario: Double = 0.0,
