@@ -134,7 +134,25 @@ fun HomeMotoristaScreen(
                                 .find { it.uid == negocianteIdAtual }
                                 ?.nome ?: negocianteIdAtual
 
-                            Text("Vinculado a: $nomeNegociante")
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Vinculado a: $nomeNegociante")
+                                OutlinedButton(
+                                    enabled = !vinculando,
+                                    onClick = {
+                                        usuarioViewModel.desvincularNegociante(
+                                            motoristaUid = usuario.uid
+                                        ) {
+                                            negocianteIdAtual = null
+                                        }
+                                    }
+                                ) {
+                                    Text("Desvincular")
+                                }
+                            }
                         }
                     }
                 }
