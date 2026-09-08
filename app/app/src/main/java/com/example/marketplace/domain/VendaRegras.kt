@@ -22,7 +22,12 @@ object VendaRegras {
     fun calcularValorTotal(valorUnitario: Double, quantidade: Int): Double =
         valorUnitario * quantidade
 
-    fun validarTransicao(statusAtualStr: String, novoStatusStr: String, perfil: String? = null) {
+    fun validarTransicao(
+        statusAtualStr: String,
+        novoStatusStr: String,
+        perfil: String? = null,
+        veiculoId: String? = null
+    ) {
         val statusAtual = StatusEntrega.deString(statusAtualStr)
         val novoStatus = StatusEntrega.deString(novoStatusStr)
 
@@ -52,6 +57,11 @@ object VendaRegras {
                     }
                     require(statusAtual != StatusEntrega.PENDENTE) {
                         "O motorista só pode assumir entregas que estejam 'Pronto para entrega'."
+                    }
+                    if (novoStatus == StatusEntrega.A_CAMINHO) {
+                        require(!veiculoId.isNullOrBlank()) {
+                            "Selecione um veículo para iniciar a entrega."
+                        }
                     }
                 }
                 "comprador" -> {
