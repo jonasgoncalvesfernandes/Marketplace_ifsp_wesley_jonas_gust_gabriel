@@ -26,6 +26,9 @@ interface UsuarioDao {
     @Query("UPDATE usuarios SET negocianteId = :negocianteId WHERE uid = :uid")
     suspend fun vincularNegociante(uid: String, negocianteId: String)
 
+    @Query("UPDATE usuarios SET negocianteId = NULL WHERE uid = :uid")
+    suspend fun desvincularNegociante(uid: String)
+
     @Query("SELECT * FROM usuarios WHERE perfil = :perfil")
     suspend fun listarPorPerfil(perfil: String): List<Usuario>
 }
