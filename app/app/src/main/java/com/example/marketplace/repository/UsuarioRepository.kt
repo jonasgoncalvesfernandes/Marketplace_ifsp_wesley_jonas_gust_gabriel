@@ -210,6 +210,31 @@ class UsuarioRepository(
         }
     }
 
+    suspend fun desvincularNegociante(motoristaUid: String) {
+        val sucesso = withTimeoutOrNull(5000) {
+            try {
+                colecao.document(motoristaUid).update("negocianteId", null).await()
+                true
+            } catch (e: Exception) {
+                false
+            }
+        } ?: false
+
+        usuarioDao.desvincularNegociante(motoristaUid)
+
+        if (!sucesso) {
+            val payload = mapOf("motoristaUid" to motoristaUid, "negocianteId" to null)
+            pendenteSycronizacaoDao.inserir(
+                PendenteSycronizacao(
+                    id = motoristaUid,
+                    tipo = TipoPendenteSyncronizacao.USUARIOS,
+                    operacao = OperacaoPendente.UPDATE,
+                    payloadJson = gson.toJson(payload)
+                )
+            )
+        }
+    }
+
     suspend fun buscarUsuarioLocal(uid: String): Usuario? {
         return usuarioDao.buscarPorId(uid)
     }
