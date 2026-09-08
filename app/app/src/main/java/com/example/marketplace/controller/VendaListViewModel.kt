@@ -31,7 +31,8 @@ class VendaListViewModel(
         vendaId: String,
         novoStatus: String,
         perfil: String? = null,
-        motoristaId: String? = null
+        motoristaId: String? = null,
+        veiculoId: String? = null
     ) {
         viewModelScope.launch {
             _statusUiState.value = AtualizarStatusUiState.Loading
@@ -40,7 +41,8 @@ class VendaListViewModel(
                     id = vendaId,
                     novoStatus = novoStatus,
                     perfil = perfil,
-                    motoristaId = motoristaId
+                    motoristaId = motoristaId,
+                    veiculoId = veiculoId
                 )
                 _statusUiState.value = AtualizarStatusUiState.Sucesso
             } catch (e: Exception) {
@@ -53,8 +55,9 @@ class VendaListViewModel(
         vendaId: String,
         novoStatus: String,
         perfil: String? = null,
-        motoristaId: String? = null
-    ) = avancarStatus(vendaId, novoStatus, perfil, motoristaId)
+        motoristaId: String? = null,
+        veiculoId: String? = null
+    ) = avancarStatus(vendaId, novoStatus, perfil, motoristaId, veiculoId)
 
     fun resetarStatus() {
         _statusUiState.value = AtualizarStatusUiState.Idle
