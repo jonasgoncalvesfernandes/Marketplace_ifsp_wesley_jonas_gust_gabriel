@@ -165,6 +165,7 @@ class SyncManager(
                             "compradorId" to venda.compradorId,
                             "vendedorId" to venda.vendedorId,
                             "motoristaId" to venda.motoristaId,
+                            "veiculoId" to venda.veiculoId,
                             "produtoId" to venda.produtoId,
                             "quantidade" to venda.quantidade,
                             "valorUnitario" to venda.valorUnitario,
