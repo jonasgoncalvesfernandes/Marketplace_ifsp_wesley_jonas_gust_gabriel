@@ -198,12 +198,14 @@ fun HomeMotoristaScreen(
                     MotoristaEntregaCard(
                         venda = venda,
                         usuario = usuario,
-                        onAtualizarStatus = { novoStatus ->
+                        veiculos = veiculos,
+                        onAtualizarStatus = { novoStatus, veiculoId ->
                             vendaViewModel.avancarStatus(
                                 vendaId = venda.id,
                                 novoStatus = novoStatus,
                                 perfil = "motorista",
-                                motoristaId = usuario.uid
+                                motoristaId = usuario.uid,
+                                veiculoId = veiculoId
                             )
                         }
                     )
@@ -213,13 +215,17 @@ fun HomeMotoristaScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MotoristaEntregaCard(
     venda: Venda,
     usuario: Usuario,
-    onAtualizarStatus: (String) -> Unit
+    veiculos: List<Veiculo>,
+    onAtualizarStatus: (String, String?) -> Unit
 ) {
     val status = venda.statusEntrega
+    var veiculoSelecionado by remember(venda.id) { mutableStateOf<Veiculo?>(null) }
+    var menuVeiculoAberto by remember { mutableStateOf(false) }
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -252,13 +258,56 @@ style = MaterialTheme.typography.bodySmall
 }
 
 StatusEntrega.PRONTO_PARA_ENTREGA -> {
+Column(
+verticalArrangement = Arrangement.spacedBy(8.dp)
+) {
+if (veiculos.isEmpty()) {
+Text(
+"Cadastre um veículo para poder iniciar a entrega.",
+style = MaterialTheme.typography.bodySmall,
+color = MaterialTheme.colorScheme.error
+)
+} else {
+ExposedDropdownMenuBox(
+expanded = menuVeiculoAberto,
+onExpandedChange = { menuVeiculoAberto = it }
+) {
+OutlinedTextField(
+value = veiculoSelecionado?.let { "${it.modelo} - ${it.placa}" } ?: "",
+onValueChange = {},
+readOnly = true,
+label = { Text("Veículo para a entrega") },
+trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuVeiculoAberto) },
+modifier = Modifier
+.fillMaxWidth()
+.menuAnchor()
+)
+ExposedDropdownMenu(
+expanded = menuVeiculoAberto,
+onDismissRequest = { menuVeiculoAberto = false }
+) {
+veiculos.forEach { veiculo ->
+DropdownMenuItem(
+text = { Text("${veiculo.modelo} - ${veiculo.placa}") },
+onClick = {
+veiculoSelecionado = veiculo
+menuVeiculoAberto = false
+}
+)
+}
+}
+}
+}
+
 Button(
 onClick = {
-onAtualizarStatus(StatusEntrega.A_CAMINHO.name)
+onAtualizarStatus(StatusEntrega.A_CAMINHO.name, veiculoSelecionado?.id)
 },
+enabled = veiculoSelecionado != null,
 modifier = Modifier.fillMaxWidth()
 ) {
 Text("Coletar e Iniciar Entrega (A caminho)")
+}
 }
 }
 
@@ -266,9 +315,17 @@ StatusEntrega.A_CAMINHO -> {
 Column(
 verticalArrangement = Arrangement.spacedBy(6.dp)
 ) {
+val veiculoDaEntrega = veiculos.find { it.id == venda.veiculoId }
+if (veiculoDaEntrega != null) {
+Text(
+"Veículo: ${veiculoDaEntrega.modelo} - ${veiculoDaEntrega.placa}",
+style = MaterialTheme.typography.bodySmall
+)
+}
+
 Button(
 onClick = {
-onAtualizarStatus(StatusEntrega.ENTREGUE.name)
+onAtualizarStatus(StatusEntrega.ENTREGUE.name, venda.veiculoId)
 },
 modifier = Modifier.fillMaxWidth()
 ) {
@@ -277,7 +334,7 @@ Text("Confirmar Entrega ao Cliente")
 
 OutlinedButton(
 onClick = {
-onAtualizarStatus(StatusEntrega.PRONTO_PARA_ENTREGA.name)
+onAtualizarStatus(StatusEntrega.PRONTO_PARA_ENTREGA.name, venda.veiculoId)
 },
 modifier = Modifier.fillMaxWidth()
 ) {
@@ -301,7 +358,7 @@ color = MaterialTheme.colorScheme.primary
 
 OutlinedButton(
 onClick = {
-onAtualizarStatus(StatusEntrega.A_CAMINHO.name)
+onAtualizarStatus(StatusEntrega.A_CAMINHO.name, venda.veiculoId)
 }
 ) {
 Text("Desfazer Entrega")
