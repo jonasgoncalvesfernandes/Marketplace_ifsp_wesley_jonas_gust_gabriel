@@ -42,6 +42,21 @@ class UsuarioViewModel(
             }
         }
     }
+
+    fun desvincularNegociante(
+        motoristaUid: String,
+        onSucesso: () -> Unit
+    ) {
+        viewModelScope.launch {
+            _vinculando.value = true
+            try {
+                repository.desvincularNegociante(motoristaUid)
+                onSucesso()
+            } finally {
+                _vinculando.value = false
+            }
+        }
+    }
 }
 
 class UsuarioViewModelFactory(
