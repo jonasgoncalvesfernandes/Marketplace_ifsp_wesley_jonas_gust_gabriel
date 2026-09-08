@@ -43,17 +43,24 @@ class VendaRegrasTest {
 
     @Test
     fun motorista_podeAvancarERegredirStatusEntreProntoACaminhoEEntregue() {
-        // PRONTO_PARA_ENTREGA -> A_CAMINHO (iniciar entrega)
-        VendaRegras.validarTransicao("PRONTO_PARA_ENTREGA", "A_CAMINHO", "motorista")
+        // PRONTO_PARA_ENTREGA -> A_CAMINHO (iniciar entrega, com veículo selecionado)
+        VendaRegras.validarTransicao("PRONTO_PARA_ENTREGA", "A_CAMINHO", "motorista", veiculoId = "veiculo-1")
 
         // A_CAMINHO -> ENTREGUE (concluir entrega)
         VendaRegras.validarTransicao("A_CAMINHO", "ENTREGUE", "motorista")
 
         // ENTREGUE -> A_CAMINHO (regressão: desfazer entrega)
-        VendaRegras.validarTransicao("ENTREGUE", "A_CAMINHO", "motorista")
+        VendaRegras.validarTransicao("ENTREGUE", "A_CAMINHO", "motorista", veiculoId = "veiculo-1")
 
         // A_CAMINHO -> PRONTO_PARA_ENTREGA (regressão: cancelar coleta)
         VendaRegras.validarTransicao("A_CAMINHO", "PRONTO_PARA_ENTREGA", "motorista")
+    }
+
+    @Test
+    fun motorista_naoPodeIniciarEntregaSemVeiculo() {
+        assertThrows(IllegalArgumentException::class.java) {
+            VendaRegras.validarTransicao("PRONTO_PARA_ENTREGA", "A_CAMINHO", "motorista")
+        }
     }
 
     @Test
