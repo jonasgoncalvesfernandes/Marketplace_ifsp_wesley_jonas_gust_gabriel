@@ -80,16 +80,19 @@ class VendaRepository(
         id: String,
         novoStatus: String,
         perfil: String? = null,
-        motoristaId: String? = null
+        motoristaId: String? = null,
+        veiculoId: String? = null
     ): Venda {
         val venda = buscarVendaPorId(id) ?: throw Exception("Venda não encontrada")
-        VendaRegras.validarTransicao(venda.status, novoStatus, perfil)
+        VendaRegras.validarTransicao(venda.status, novoStatus, perfil, veiculoId)
 
         val novoMotoristaId = if (!motoristaId.isNullOrBlank()) motoristaId else venda.motoristaId
+        val novoVeiculoId = veiculoId ?: venda.veiculoId
 
         val atualizada = venda.copy(
             status = novoStatus,
-            motoristaId = novoMotoristaId
+            motoristaId = novoMotoristaId,
+            veiculoId = novoVeiculoId
         )
 
         val sucesso = salvarNoFirestore(atualizada)
@@ -137,6 +140,7 @@ class VendaRepository(
             "compradorId" to venda.compradorId,
             "vendedorId" to venda.vendedorId,
             "motoristaId" to venda.motoristaId,
+            "veiculoId" to venda.veiculoId,
             "produtoId" to venda.produtoId,
             "quantidade" to venda.quantidade,
             "valorUnitario" to venda.valorUnitario,
@@ -162,6 +166,7 @@ class VendaRepository(
             compradorId = doc.getString("compradorId") ?: "",
             vendedorId = doc.getString("vendedorId") ?: "",
             motoristaId = doc.getString("motoristaId") ?: "",
+            veiculoId = doc.getString("veiculoId"),
             produtoId = doc.getString("produtoId") ?: "",
             quantidade = (doc.getLong("quantidade") ?: 0L).toInt(),
             valorUnitario = doc.getDouble("valorUnitario") ?: 0.0,
